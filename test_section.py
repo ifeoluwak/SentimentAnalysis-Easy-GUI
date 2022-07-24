@@ -36,13 +36,13 @@ class TestSection(qtw.QWidget):
         self.test_upload_section()
         # self.plot()
 
-        self.layout = qtw.QVBoxLayout()
-        
+        self.layout = qtw.QVBoxLayout()        
 
         self.layout.addWidget(self.test_info_text)
         self.layout.addWidget(self.testTableView)
         self.layout.addWidget(self.upload_test_button)
-
+        
+        self.layout.addStretch()
         self.setLayout(self.layout)
         self.show()
 
@@ -71,8 +71,10 @@ class TestSection(qtw.QWidget):
         self.testTableView.setFixedHeight(150)
         self.testTableView.setColumnCount(2)
         self.testTableView.setRowCount(10)
-        self.testTableView.setHorizontalHeaderLabels(["Label", "Review"])
+        self.testTableView.setHorizontalHeaderLabels(["Label", "Text"])
         self.testTableView.horizontalHeader().setStretchLastSection(True)
+        # self.testTableView.setAlignment(Qt.AlignTop)
+        # self.layout.setAlignment(self.testTableView, Qt.AlignTop)
 
 
     def open(self):
@@ -93,10 +95,9 @@ class TestSection(qtw.QWidget):
                     self.testTableView.setItem(i, 0, QTableWidgetItem(item_label))
                     self.testTableView.setItem(i, 1, QTableWidgetItem(item_msg))
                 i += 1
-                # if i > 9:
-                #     break
         
-        self.test_classifier()
+        if (len(train_labels)):
+            self.test_classifier()
 
     
     def test_classifier(self):
@@ -104,20 +105,13 @@ class TestSection(qtw.QWidget):
         print('\n', classifier['value'])
         X_new_counts = count_vect_test.fit_transform(test_msgs)
         predicted = classifier['value'].predict(X_new_counts)
-        # print('\n', 'Prediction!!!!')
-        # print(predicted)
-        # print(np.mean(predicted == test_labels))
         prediction_metrics = metrics.classification_report(test_labels, predicted, output_dict=True)
-        # metrics = metrics.accuracy_score(test_labels, predicted)
         print(prediction_metrics)
-
 
         self.create_classification_report_table(prediction_metrics)
         self.layout.addWidget(self.reportTableView)
         self.populate_metrics_table(prediction_metrics)
         self.populate_prediction_frame(predicted)
-        # for c in confusion:
-        #     print(c)
         
         
     def create_classification_report_table(self, prediction_metrics):
@@ -156,11 +150,6 @@ class TestSection(qtw.QWidget):
         # for label in unique_labels:
         #     label_dict[label] = [lbl for lbl in predicted if lbl == label]
         #     # neu = [lbl for lbl in predicted if lbl == '2']
-        pos = [lbl for lbl in predicted if lbl == '3']
-        neu = [lbl for lbl in predicted if lbl == '2']
-        neg = [lbl for lbl in predicted if lbl == '1']
-
-        print("length of 3", len(pos), len(neu), len(neg))
 
         # count = []
         # for label in unique_labels:
@@ -174,7 +163,6 @@ class TestSection(qtw.QWidget):
         train_int = list(map(lambda x: int(x), test_labels))
         train_category = list(map(lambda x: 'Actual', test_labels))
         
-
         table = pd.DataFrame.from_dict({ 'labels': predicted_int + train_int, 'category': predicted_category + train_category  })
         self.plot(table)
         
@@ -193,12 +181,10 @@ class TestSection(qtw.QWidget):
         ax = self.canvas.figure.subplots()
         sns.countplot(x="labels", hue="category", data=df, ax=ax)
         # bins=len(unique_labels)
-        # ax.set_title("Plot 1")
+        ax.set_title(classifier['value'])
         self.canvas.draw()
         self.layout.addWidget(self.canvas)
         self.prediction_counter += 1
-                
-
     
     def update_variables(
         self,

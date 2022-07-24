@@ -10,6 +10,8 @@ svmFormWidgets = []
 class ClassifierTab(qtw.QWidget):
     naive_bayes_submitted = qtc.pyqtSignal(str, bool, str)
     knn_submitted = qtc.pyqtSignal(str, str, str, str, str)
+    dt_submitted = qtc.pyqtSignal(str, str, str, str, str, str, str, str)
+    
     def __init__(self, parent: qtw.QWidget):
         super().__init__(parent)
 
@@ -128,6 +130,7 @@ class ClassifierTab(qtw.QWidget):
         formlayout.setLabelAlignment(Qt.AlignLeft)
 
         form_layout_widget = qtw.QWidget()
+
         formlayout.addRow('Regularization (C)', self.regularization)
         formlayout.addRow('Tolerance', self.tol_edit)
         formlayout.addRow('Kernel', self.kernel_edit)
@@ -137,8 +140,25 @@ class ClassifierTab(qtw.QWidget):
         formlayout.addRow('Shrinking', self.shrinking_edit)
         formlayout.addRow('Probability', self.probability_edit)
         formlayout.addRow('Decision function of shape', self.decision_function_shape_edit)
+        
+        form_widget = qtw.QWidget()
+        form_widget.setLayout(formlayout)
+        
+        v_layout = qtw.QVBoxLayout()
+        self.svm1_button = qtw.QPushButton("Generate model")
+        self.svm1_button.setStyleSheet("""
+            border-radius: 45px;
+            background-color: #2ABf9E;
+            padding: 10px;
+            font-size: 18px;
+            color: white;
+        """)
+        
+        v_layout.addWidget(form_widget)
+        v_layout.addStretch()
+        v_layout.addWidget(self.svm1_button)
 
-        form_layout_widget.setLayout(formlayout)
+        form_layout_widget.setLayout(v_layout)
         svmFormWidgets.append(form_layout_widget)
 
 
@@ -157,10 +177,26 @@ class ClassifierTab(qtw.QWidget):
         formlayout.addRow('Loss', self.loss_edit)
         formlayout.addRow('Dual', self.dual_edit)
         formlayout.addRow('Multi-class strategy', self.multi_class_edit)
+        
+        form_widget = qtw.QWidget()
+        form_widget.setLayout(formlayout)
+        
+        v_layout = qtw.QVBoxLayout()
+        self.svm2_button = qtw.QPushButton("Generate model")
+        self.svm2_button.setStyleSheet("""
+            border-radius: 45px;
+            background-color: #2ABf9E;
+            padding: 10px;
+            font-size: 18px;
+            color: white;
+        """)
+        
+        v_layout.addWidget(form_widget)
+        v_layout.addStretch()
+        v_layout.addWidget(self.svm2_button)
 
-        form_layout_widget.setLayout(formlayout)
+        form_layout_widget.setLayout(v_layout)
         svmFormWidgets.append(form_layout_widget)
-    
 
     def knnClassifier(self):
         self.knn_weights_edit = qtw.QComboBox()
@@ -200,6 +236,13 @@ class ClassifierTab(qtw.QWidget):
         
         v_layout = qtw.QVBoxLayout()
         self.knn_button = qtw.QPushButton("Generate model")
+        self.knn_button.setStyleSheet("""
+            border-radius: 45px;
+            background-color: #2ABf9E;
+            padding: 10px;
+            font-size: 18px;
+            color: white;
+        """)
         self.knn_button.clicked.connect(self.submit_knn)
 
         v_layout.addWidget(form_widget)
@@ -232,6 +275,13 @@ class ClassifierTab(qtw.QWidget):
 
         v_layout = qtw.QVBoxLayout()
         self.nb_button = qtw.QPushButton("Generate model")
+        self.nb_button.setStyleSheet("""
+            border-radius: 45px;
+            background-color: #2ABf9E;
+            padding: 10px;
+            font-size: 18px;
+            color: white;
+        """)
         self.nb_button.clicked.connect(self.submit_naive_bayes)
 
         v_layout.addWidget(form_widget)
@@ -286,27 +336,38 @@ class ClassifierTab(qtw.QWidget):
         formlayout.addRow('Max leaf nodes', self.dt_max_leaf_nodes_edit)
         formlayout.addRow('Random state', self.dt_random_state_edit)
         formlayout.addRow('Max Features', self.dt_max_features_edit)
+        
+        form_widget = qtw.QWidget()
+        form_widget.setLayout(formlayout)
 
-        self.decisionTreeWidget.setLayout(formlayout)
+        v_layout = qtw.QVBoxLayout()
+        self.dt_button = qtw.QPushButton("Generate model")
+        self.dt_button.setStyleSheet("""
+            border-radius: 45px;
+            background-color: #2ABf9E;
+            padding: 10px;
+            font-size: 18px;
+            color: white;
+        """)
+        self.dt_button.clicked.connect(self.submit_decision_tree)
 
+        v_layout.addWidget(form_widget)
+        v_layout.addWidget(self.dt_button)
+
+        self.decisionTreeWidget.setLayout(v_layout)
     
     def onClicked(self):
         radioButton = self.sender()
         if radioButton.isChecked():
             self.clearSvmForm()
-            # print("Country is %s" % (radioButton.type))
             if (radioButton.type == 'svc'):
                 self.svmClassifierType1()
-                # print("Country is %s" % (radioButton.type))
             else:
                 self.svmClassifierType2()
-                # print("Country is not %s" % (radioButton.type))
 
             self.generateSvmForm()
 
     def submit_naive_bayes(self):
-       print(self.nb_type_edit.currentText())
-
        self.naive_bayes_submitted.emit(
         self.nb_type_edit.currentText(),
         self.nb_fit_prior_edit.isChecked(),
@@ -314,13 +375,23 @@ class ClassifierTab(qtw.QWidget):
         )
         
     def submit_knn(self):
-       # print(self.nb_type_edit.currentText())
-
        self.knn_submitted.emit(
         self.knn_weights_edit.currentText(),
         self.knn_algorithm_edit.currentText(),
         self.knn_neighbors_edit.text(),
         self.knn_leaf_size_edit.text(),
         self.knn_p_edit.text(),
+        )
+    
+    def submit_decision_tree(self):
+       self.dt_submitted.emit(
+        self.dt_criterion_edit.currentText(),
+        self.dt_splitter_edit.currentText(),
+        self.dt_max_depth_edit.text(),
+        self.dt_min_samples_split_edit.text(),
+        self.dt_min_samples_leaf_edit.text(),
+        self.dt_max_leaf_nodes_edit.text(),
+        self.dt_random_state_edit.text(),
+        self.dt_max_features_edit.toPlainText(),
         )
 

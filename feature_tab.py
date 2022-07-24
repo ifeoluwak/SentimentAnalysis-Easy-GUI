@@ -75,6 +75,13 @@ class FeatureExtractionTab(qtw.QWidget):
         form_layout.addRow('Min df', self.min_df_edit)
 
         submit_button = qtw.QPushButton('Save')
+        submit_button.setStyleSheet("""
+            border-radius: 45px;
+            background-color: #2ABf9E;
+            padding: 10px;
+            font-size: 18px;
+            color: white;
+        """)
         submit_button.clicked.connect(self.submit)
 
         form_widget = qtw.QWidget()

@@ -11,6 +11,8 @@ class ClassifierTab(qtw.QWidget):
     naive_bayes_submitted = qtc.pyqtSignal(str, bool, str)
     knn_submitted = qtc.pyqtSignal(str, str, str, str, str)
     dt_submitted = qtc.pyqtSignal(str, str, str, str, str, str, str, str)
+    lvc_submitted = qtc.pyqtSignal(str, str, str, str, bool, str)
+    svc_submitted = qtc.pyqtSignal(str, str, str, str, str, str, str, str)
     
     def __init__(self, parent: qtw.QWidget):
         super().__init__(parent)
@@ -87,10 +89,10 @@ class ClassifierTab(qtw.QWidget):
         self.decision_function_shape_edit.addItems(['ovo', 'ovr'])
 
         self.penalty_edit = qtw.QComboBox()
-        self.penalty_edit.addItems(['l1', 'l2'])
+        self.penalty_edit.addItems(['l2', 'l1'])
 
         self.loss_edit = qtw.QComboBox()
-        self.loss_edit.addItems(['hinge', 'squared_hinge'])
+        self.loss_edit.addItems(['squared_hinge', 'hinge'])
 
         self.dual_edit = qtw.QCheckBox('Is Dual?')
         self.dual_edit.setChecked(True)
@@ -190,6 +192,7 @@ class ClassifierTab(qtw.QWidget):
             font-size: 18px;
             color: white;
         """)
+        self.svm2_button.clicked.connect(self.submit_lvc)
         
         v_layout.addWidget(form_widget)
         v_layout.addStretch()
@@ -255,6 +258,7 @@ class ClassifierTab(qtw.QWidget):
         self.nb_type_edit.addItems(['Complement', 'Multinomial'])
 
         self.nb_fit_prior_edit = qtw.QCheckBox()
+        self.nb_fit_prior_edit.setChecked(True)
 
         self.nb_alpha_edit = qtw.QLineEdit()
         self.nb_alpha_edit.setValidator(qtg.QIntValidator())
@@ -393,5 +397,15 @@ class ClassifierTab(qtw.QWidget):
         self.dt_max_leaf_nodes_edit.text(),
         self.dt_random_state_edit.text(),
         self.dt_max_features_edit.toPlainText(),
+        )
+    
+    def submit_lvc(self):
+        self.lvc_submitted.emit(
+            self.regularization.text(),
+            self.tol_edit.text(),
+            self.penalty_edit.currentText(),
+            self.loss_edit.currentText(),
+            self.dual_edit.isChecked(),
+            self.multi_class_edit.currentText(),
         )
 

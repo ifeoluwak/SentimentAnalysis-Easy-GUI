@@ -47,7 +47,7 @@ class TestSection(qtw.QWidget):
         self.show()
 
     def test_upload_section(self):
-        self.test_info_text = qtw.QLabel("<h3>Upload Training Data Set<h3>")
+        self.test_info_text = qtw.QLabel("<h3>Upload Test Data Set<h3>")
         # self.test_info_text.setStyleSheet("""
         #     font-size: 24px;
         # """)
@@ -98,6 +98,8 @@ class TestSection(qtw.QWidget):
         
         if (len(train_labels)):
             self.test_classifier()
+        # else:
+        #     qtw.QMessageBox.about(self, "Error", "Please upload training data set")
 
     
     def test_classifier(self):

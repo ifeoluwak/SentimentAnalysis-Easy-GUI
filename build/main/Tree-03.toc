@@ -1,5 +1,0 @@
-('/Users/ifeoluwaking/Desktop/sa-easy-gui/build/main/locket-0.2.1-py3.9.egg',
- None,
- {'*.cpython-39-darwin.so', '*.pyc', 'EGG-INFO', '*.py', '*.abi3.so', '*.so'},
- 'DATA',
- [])

@@ -39,31 +39,47 @@ class TestSection(qtw.QWidget):
         self.layout = qtw.QVBoxLayout()        
 
         self.layout.addWidget(self.test_info_text)
-        self.layout.addWidget(self.testTableView)
-        self.layout.addWidget(self.upload_test_button)
+        self.create_classification_report_table([])
+        self.layout.addWidget(self.table_title)
+        self.layout.addWidget(self.reportTableView)
+        self.layout.addWidget(self.predict_title)
+        self.layout.addWidget(self.text_to_predict)
+        self.layout.addWidget(self.predict_button)
+        
         
         self.layout.addStretch()
         self.setLayout(self.layout)
         self.show()
 
     def test_upload_section(self):
-        self.test_info_text = qtw.QLabel("<h3>Upload Test Data Set<h3>")
-        # self.test_info_text.setStyleSheet("""
-        #     font-size: 24px;
-        # """)
-
-        self.upload_test_button = qtw.QPushButton('Upload')
-        # self.upload_button.setFixedSize(100, 40)
-        self.upload_test_button.setStyleSheet("""
-            border-radius: 45px;
-            background-color: #2ABf9E;
-            padding: 10px;
-            font-size: 18px;
-            color: white;
+        self.test_info_text = qtw.QLabel("<h3>Test Section<h3>")
+        self.test_info_text.setStyleSheet("""
+            font-size: 24px;
         """)
-        self.upload_test_button.clicked.connect(self.open)
+        
+        self.table_title = qtw.QLabel("<h3>Classification Report<h3>")
+        
+        
+        self.predict_title = qtw.QLabel("<h3>Analyse a Text<h3>")
+    
+        self.text_to_predict = qtw.QPlainTextEdit()
+        self.text_to_predict.setPlaceholderText("Enter a text to predict")
+        self.text_to_predict.setFixedHeight(50)
 
-        self.create_test_table()
+        self.predict_button = qtw.QPushButton('Predict text')
+        # self.upload_button.setFixedSize(100, 40)
+        self.predict_button.setStyleSheet("QPushButton"
+                             "{"
+                             "background-color : #2ABf9E; padding: 10px; color: white;"
+                             "}"
+                             "QPushButton::pressed"
+                             "{"
+                             "background-color : grey;"
+                             "}"
+                             )
+        self.predict_button.clicked.connect(self.predict_user_text)
+
+        # self.create_test_table()
 
 
     def create_test_table(self):
@@ -76,31 +92,6 @@ class TestSection(qtw.QWidget):
         # self.testTableView.setAlignment(Qt.AlignTop)
         # self.layout.setAlignment(self.testTableView, Qt.AlignTop)
 
-
-    def open(self):
-        filename, _ = qtw.QFileDialog.getOpenFileName()
-        if filename:
-            file = open(filename, 'r')
-            lines = file.readlines()
-            i = 0
-            test_labels.clear()
-            test_msgs.clear()
-            for line in lines:
-                splitLine = line.split('\t')
-                item_label = splitLine[0]
-                item_msg = splitLine[2]
-                test_labels.append(item_label)
-                test_msgs.append(item_msg)
-                if i < 10:
-                    self.testTableView.setItem(i, 0, QTableWidgetItem(item_label))
-                    self.testTableView.setItem(i, 1, QTableWidgetItem(item_msg))
-                i += 1
-        
-        if (len(train_labels)):
-            self.test_classifier()
-        # else:
-        #     qtw.QMessageBox.about(self, "Error", "Please upload training data set")
-
     
     def test_classifier(self):
         count_vect_test = CountVectorizer(vocabulary=training_words)
@@ -111,16 +102,25 @@ class TestSection(qtw.QWidget):
         print(prediction_metrics)
 
         self.create_classification_report_table(prediction_metrics)
+        self.layout.addWidget(self.table_title)
         self.layout.addWidget(self.reportTableView)
         self.populate_metrics_table(prediction_metrics)
         self.populate_prediction_frame(predicted)
+        self.layout.addStretch()
+        self.layout.addWidget(self.predict_title)
+        self.layout.addWidget(self.text_to_predict)
+        self.layout.addWidget(self.predict_button)
         
         
     def create_classification_report_table(self, prediction_metrics):
-        if (self.prediction_counter < 1):
+        if len(prediction_metrics) < 1:
             self.reportTableView = QTableWidget()
         else:
+            self.layout.removeWidget(self.table_title)
             self.layout.removeWidget(self.reportTableView)
+            self.layout.removeWidget(self.predict_title)
+            self.layout.removeWidget(self.text_to_predict)
+            self.layout.removeWidget(self.predict_button)
             # self.reportTableView.deleteLater()
         # self.reportTableView.setFixedHeight(150)
         self.reportTableView.setColumnCount(5)
@@ -159,13 +159,13 @@ class TestSection(qtw.QWidget):
         # table = pd.DataFrame.from_dict({ 'labels': unique_labels, 'count': count })
         # print(table)
 
-        predicted_int = list(map(lambda x: int(x), predicted))
+        predicted_int = list(map(lambda x: x, predicted))
         predicted_category = list(map(lambda x: 'Predicted', predicted))
         
-        train_int = list(map(lambda x: int(x), test_labels))
-        train_category = list(map(lambda x: 'Actual', test_labels))
+        test_int = list(map(lambda x: x, test_labels))
+        test_category = list(map(lambda x: 'Actual', test_labels))
         
-        table = pd.DataFrame.from_dict({ 'labels': predicted_int + train_int, 'category': predicted_category + train_category  })
+        table = pd.DataFrame.from_dict({ 'labels': predicted_int + test_int, 'category': predicted_category + test_category  })
         self.plot(table)
         
         
@@ -187,23 +187,39 @@ class TestSection(qtw.QWidget):
         self.canvas.draw()
         self.layout.addWidget(self.canvas)
         self.prediction_counter += 1
+        
+        
+    def predict_user_text(self):
+        text_to_predict = self.text_to_predict.toPlainText()
+        if not text_to_predict:
+            qtw.QMessageBox.about(self, "Error", "Cannot be empty")
+        else:
+            count_vect_test = CountVectorizer(vocabulary=training_words)
+            print('\n', classifier['value'])
+            X_new_counts = count_vect_test.fit_transform([text_to_predict])
+            predicted = classifier['value'].predict(X_new_counts)
+            print(predicted)
+            sentiment = "Sentiment of Text is: " + predicted[0]
+            qtw.QMessageBox.about(self, "Text Sentiment", sentiment)
+            # prediction_metrics = metrics.classification_report(test_labels, predicted, output_dict=True)
+            # print(prediction_metrics)
     
     def update_variables(
         self,
-        train_labels_param,
-        train_msg_param,
+        test_labels_param,
+        test_msg_param,
         train_count_vect_param,
         train_counts_param,
         training_words_param,
         classifier_param
         ):
-        train_labels.clear()
-        train_msg.clear()
+        test_labels.clear()
+        test_msgs.clear()
         training_words.clear()
-        for label in train_labels_param:
-            train_labels.append(label)
-        for msg in train_msg_param:
-            train_msg.append(msg)
+        for label in test_labels_param:
+            test_labels.append(label)
+        for msg in test_msg_param:
+            test_msgs.append(msg)
         for word in training_words_param['value']:
             training_words.append(word)
         count_vect['value'] = train_count_vect_param['value']

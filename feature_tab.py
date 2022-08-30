@@ -6,7 +6,7 @@ from PyQt5 import QtGui as qtg
 from PyQt5.QtCore import Qt
 
 class FeatureExtractionTab(qtw.QWidget):
-    submitted = qtc.pyqtSignal(str, str, bool, bool, str, str, str, str, str, str)
+    submitted = qtc.pyqtSignal(str, str, bool, bool, str, str, str, str, str)
 
     def __init__(self, parent: qtw.QWidget):
         super().__init__(parent)
@@ -27,12 +27,16 @@ class FeatureExtractionTab(qtw.QWidget):
 
         self.analyzer_edit = qtw.QComboBox()
         self.analyzer_edit.addItems(['word', 'char', 'char_wb'])
+        
+        # self.strip_accents_edit.setToolTip("<b>HTML</b> <i>can</i> be shown too..")
 
         self.lowercase_edit = qtw.QCheckBox('Convert to lowercase')
         self.lowercase_edit.setChecked(True)
+        # self.lowercase_edit.setToolTip("<b>HTML</b> <i>can</i> be shown too..")
+        
         self.binary_edit = qtw.QCheckBox('Is binary?')
-        self.stop_words_edit = qtw.QPlainTextEdit()
-        self.stop_words_edit.setPlaceholderText("e.g the,an,he,she")
+        # self.stop_words_edit = qtw.QPlainTextEdit()
+        # self.stop_words_edit.setPlaceholderText("e.g the,an,he,she")
         # self.stop_words_edit.setFixedHeight(50)
         # self.stop_words_edit.setFixedWidth(150)
         self.token_pattern_edit = qtw.QPlainTextEdit()
@@ -67,7 +71,7 @@ class FeatureExtractionTab(qtw.QWidget):
         form_layout.addRow('Analyzer', self.analyzer_edit)
         form_layout.addRow('', self.lowercase_edit)
         form_layout.addRow('', self.binary_edit)
-        form_layout.addRow('Stop words', self.stop_words_edit)
+        # form_layout.addRow('Stop words', self.stop_words_edit)
         form_layout.addRow('Regex Pattern', self.token_pattern_edit)
         form_layout.addRow('Range', self.ngram_range_edit)
         form_layout.addRow('Max Features', self.max_features_edit)
@@ -75,13 +79,15 @@ class FeatureExtractionTab(qtw.QWidget):
         form_layout.addRow('Min df', self.min_df_edit)
 
         submit_button = qtw.QPushButton('Save')
-        submit_button.setStyleSheet("""
-            border-radius: 45px;
-            background-color: #2ABf9E;
-            padding: 10px;
-            font-size: 18px;
-            color: white;
-        """)
+        submit_button.setStyleSheet("QPushButton"
+                             "{"
+                             "background-color : #2ABf9E; padding: 10px; color: white;"
+                             "}"
+                             "QPushButton::pressed"
+                             "{"
+                             "background-color : grey;"
+                             "}"
+                             )
         submit_button.clicked.connect(self.submit)
 
         form_widget = qtw.QWidget()
@@ -108,7 +114,7 @@ class FeatureExtractionTab(qtw.QWidget):
         self.analyzer_edit.currentText(),
         self.lowercase_edit.isChecked(),
         self.binary_edit.isChecked(),
-        self.stop_words_edit.toPlainText(),
+        # self.stop_words_edit.toPlainText(),
         self.token_pattern_edit.toPlainText(),
         self.ngram_range_edit.toPlainText(),
         self.max_df_edit.text(),

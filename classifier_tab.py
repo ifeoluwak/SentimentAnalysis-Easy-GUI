@@ -12,7 +12,7 @@ class ClassifierTab(qtw.QWidget):
     knn_submitted = qtc.pyqtSignal(str, str, str, str, str)
     dt_submitted = qtc.pyqtSignal(str, str, str, str, str, str, str, str)
     lvc_submitted = qtc.pyqtSignal(str, str, str, str, bool, str)
-    svc_submitted = qtc.pyqtSignal(str, str, str, str, str, str, str, str)
+    svc_submitted = qtc.pyqtSignal(str, str, str, str, str, str, bool, bool, str)
     
     def __init__(self, parent: qtw.QWidget):
         super().__init__(parent)
@@ -86,7 +86,7 @@ class ClassifierTab(qtw.QWidget):
         self.probability_edit = qtw.QCheckBox()
 
         self.decision_function_shape_edit = qtw.QComboBox()
-        self.decision_function_shape_edit.addItems(['ovo', 'ovr'])
+        self.decision_function_shape_edit.addItems(['ovr', 'ovo'])
 
         self.penalty_edit = qtw.QComboBox()
         self.penalty_edit.addItems(['l2', 'l1'])
@@ -148,13 +148,16 @@ class ClassifierTab(qtw.QWidget):
         
         v_layout = qtw.QVBoxLayout()
         self.svm1_button = qtw.QPushButton("Generate model")
-        self.svm1_button.setStyleSheet("""
-            border-radius: 45px;
-            background-color: #2ABf9E;
-            padding: 10px;
-            font-size: 18px;
-            color: white;
-        """)
+        self.svm1_button.setStyleSheet("QPushButton"
+                             "{"
+                             "background-color : #2ABf9E; padding: 10px; color: white;"
+                             "}"
+                             "QPushButton::pressed"
+                             "{"
+                             "background-color : grey;"
+                             "}"
+                             )
+        self.svm1_button.clicked.connect(self.submit_svc)
         
         v_layout.addWidget(form_widget)
         v_layout.addStretch()
@@ -184,14 +187,16 @@ class ClassifierTab(qtw.QWidget):
         form_widget.setLayout(formlayout)
         
         v_layout = qtw.QVBoxLayout()
-        self.svm2_button = qtw.QPushButton("Generate model")
-        self.svm2_button.setStyleSheet("""
-            border-radius: 45px;
-            background-color: #2ABf9E;
-            padding: 10px;
-            font-size: 18px;
-            color: white;
-        """)
+        self.svm2_button = qtw.QPushButton("Generatesss model")
+        self.svm2_button.setStyleSheet("QPushButton"
+                             "{"
+                             "background-color : #2ABf9E; padding: 10px; color: white;"
+                             "}"
+                             "QPushButton::pressed"
+                             "{"
+                             "background-color : grey;"
+                             "}"
+                             )
         self.svm2_button.clicked.connect(self.submit_lvc)
         
         v_layout.addWidget(form_widget)
@@ -239,13 +244,15 @@ class ClassifierTab(qtw.QWidget):
         
         v_layout = qtw.QVBoxLayout()
         self.knn_button = qtw.QPushButton("Generate model")
-        self.knn_button.setStyleSheet("""
-            border-radius: 45px;
-            background-color: #2ABf9E;
-            padding: 10px;
-            font-size: 18px;
-            color: white;
-        """)
+        self.knn_button.setStyleSheet("QPushButton"
+                             "{"
+                             "background-color : #2ABf9E; padding: 10px; color: white;"
+                             "}"
+                             "QPushButton::pressed"
+                             "{"
+                             "background-color : grey;"
+                             "}"
+                             )
         self.knn_button.clicked.connect(self.submit_knn)
 
         v_layout.addWidget(form_widget)
@@ -279,13 +286,15 @@ class ClassifierTab(qtw.QWidget):
 
         v_layout = qtw.QVBoxLayout()
         self.nb_button = qtw.QPushButton("Generate model")
-        self.nb_button.setStyleSheet("""
-            border-radius: 45px;
-            background-color: #2ABf9E;
-            padding: 10px;
-            font-size: 18px;
-            color: white;
-        """)
+        self.nb_button.setStyleSheet("QPushButton"
+                             "{"
+                             "background-color : #2ABf9E; padding: 10px; color: white;"
+                             "}"
+                             "QPushButton::pressed"
+                             "{"
+                             "background-color : grey;"
+                             "}"
+                             )
         self.nb_button.clicked.connect(self.submit_naive_bayes)
 
         v_layout.addWidget(form_widget)
@@ -346,13 +355,15 @@ class ClassifierTab(qtw.QWidget):
 
         v_layout = qtw.QVBoxLayout()
         self.dt_button = qtw.QPushButton("Generate model")
-        self.dt_button.setStyleSheet("""
-            border-radius: 45px;
-            background-color: #2ABf9E;
-            padding: 10px;
-            font-size: 18px;
-            color: white;
-        """)
+        self.dt_button.setStyleSheet("QPushButton"
+                             "{"
+                             "background-color : #2ABf9E; padding: 10px; color: white;"
+                             "}"
+                             "QPushButton::pressed"
+                             "{"
+                             "background-color : grey;"
+                             "}"
+                             )
         self.dt_button.clicked.connect(self.submit_decision_tree)
 
         v_layout.addWidget(form_widget)
@@ -408,4 +419,16 @@ class ClassifierTab(qtw.QWidget):
             self.dual_edit.isChecked(),
             self.multi_class_edit.currentText(),
         )
-
+        
+    def submit_svc(self):
+        self.svc_submitted.emit(
+            self.regularization.text(),
+            self.tol_edit.text(),
+            self.kernel_edit.currentText(),
+            self.degree_edit.text(),
+            self.gamma_edit.currentText(),
+            self.coeff_edit.text(),
+            self.shrinking_edit.isChecked(),
+            self.probability_edit.isChecked(),
+            self.decision_function_shape_edit.currentText(),
+        )

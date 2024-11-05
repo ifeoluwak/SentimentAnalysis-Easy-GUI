@@ -185,6 +185,7 @@ class TestSection(qtw.QWidget):
         # bins=len(unique_labels)
         ax.set_title(classifier['value'])
         self.canvas.draw()
+        self.layout.addStretch()
         self.layout.addWidget(self.canvas)
         self.prediction_counter += 1
         
